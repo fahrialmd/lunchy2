@@ -9,11 +9,10 @@ using {com.fahrialmd.lunchy2 as lunchy2} from '../index';
 
 // Payment Methods Entity (Child of Buyer)
 entity PaymentMethods : cuid, managed {
-    buyer         : Association to lunchy2.Users              @title: 'Buyer';
-    paymentMethod : Association to lunchy2.PaymentMethodTypes @title: 'Payment Method Type';
-    paymentName   : String(50)                                @title: 'Payment Name'; // BRI, BCA, GOPAY, etc.
-    accountNumber : String(100)                               @title: 'Account Number';
-    isActive      : Boolean default true                      @title: 'Is Active';
-    isPrimary     : Boolean default false                     @title: 'Is Primary Payment';
+    buyer         : Association to lunchy2.Users;
+    paymentMethod : Association to lunchy2.PaymentMethodTypes;
+    paymentName   : String(50);
+    accountNumber : String(100);
+    isActive      : Boolean default true;
+    isPrimary     : Boolean default false;
 }
-    

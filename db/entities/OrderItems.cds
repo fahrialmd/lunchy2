@@ -11,11 +11,11 @@ using {com.fahrialmd.lunchy2 as lunchy2} from '../index';
 // Order Items Entity
 entity OrderItems : cuid, managed {
     order        : Association to lunchy2.Orders;
-    customerName : String(100)                         @title: 'Customer Name';
-    menuItemName : String(100)                         @title: 'Menu Item';
-    quantity     : Integer default 1                   @title: 'Quantity';
-    unitPrice    : Integer                             @title: 'Unit Price'  @Semantics.amount.currencyCode: 'currency';
-    itemTotal    : Integer                             @title: 'Item Total'  @Core.Computed  @Semantics.amount.currencyCode: 'currency';
-    itemStatus   : Association to lunchy2.ItemStatuses @title: 'Item Status';
-    currency     : Currency default 'IDR'              @title: 'Currency';
+    customerName : String(100);
+    menuItemName : String(100);
+    quantity     : Integer default 1;
+    unitPrice    : Integer  @Semantics.amount.currencyCode: 'currency';
+    itemTotal    : Integer  @Core.Computed  @Semantics.amount.currencyCode: 'currency';
+    itemStatus   : Association to lunchy2.ItemStatuses;
+    currency     : Currency default 'IDR';
 }
