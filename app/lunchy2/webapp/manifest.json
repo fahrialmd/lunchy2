@@ -48,7 +48,9 @@
       "minUI5Version": "1.138.0",
       "libs": {
         "sap.m": {},
-        "sap.ui.core": {}
+        "sap.ui.core": {},
+        "sap.f": {},
+        "sap.ui.comp": {}
       }
     },
     "contentDensities": {
@@ -83,7 +85,7 @@
       "config": {
         "routerClass": "sap.m.routing.Router",
         "controlAggregation": "pages",
-        "controlId": "app",
+        "controlId": "idApp",
         "transition": "slide",
         "type": "View",
         "viewType": "XML",
@@ -121,7 +123,7 @@
     "rootView": {
       "viewName": "lunchy2.view.App",
       "type": "XML",
-      "id": "App",
+      "id": "idApp",
       "async": true
     }
   }
