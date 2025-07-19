@@ -1,0 +1,128 @@
+{
+  "_version": "1.65.0",
+  "sap.app": {
+    "id": "lunchy2",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.17.4",
+      "toolsId": "4d414336-8425-4e92-b370-40a04b4c5d27"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/main/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": false,
+    "dependencies": {
+      "minUI5Version": "1.138.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "lunchy2.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "transition": "slide",
+        "type": "View",
+        "viewType": "XML",
+        "path": "lunchy2.view",
+        "async": true,
+        "viewPath": "lunchy2.view"
+      },
+      "routes": [
+        {
+          "name": "RouteOrderScreen",
+          "pattern": "",
+          "target": [
+            "TargetOrderScreen"
+          ]
+        },
+        {
+          "name": "RouteOrderItemScreen",
+          "pattern": "Order({OrderID}):?query:",
+          "target": [
+            "TargetOrderItemScreen"
+          ]
+        }
+      ],
+      "targets": {
+        "TargetOrderScreen": {
+          "id": "OrderScreen",
+          "name": "OrderScreen"
+        },
+        "TargetOrderItemScreen": {
+          "id": "OrderItemScreen",
+          "name": "OrderItemScreen"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "lunchy2.view.App",
+      "type": "XML",
+      "id": "App",
+      "async": true
+    }
+  }
+}

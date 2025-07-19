@@ -1,0 +1,56 @@
+<mvc:View
+    controllerName="lunchy2.controller.OrderScreen"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    displayBlock="true"
+>
+    <Page
+        id="page"
+        title="{i18n>title}"
+    >
+        <content>
+            <Table
+                id="ordersTable"
+                items="{/Orders}"
+                class="sapUiMediumMargin"
+            >
+                <headerToolbar>
+                    <Toolbar>
+                        <Title
+                            text="Orders"
+                            level="H2"
+                        />
+                    </Toolbar>
+                </headerToolbar>
+                <columns>
+                    <Column>
+                        <Text text="Order Number" />
+                    </Column>
+                    <Column>
+                        <Text text="Description" />
+                    </Column>
+                    <Column>
+                        <Text text="Order Date" />
+                    </Column>
+                    <Column>
+                        <Text text="Total Amount" />
+                    </Column>
+                    <Column>
+                        <Text text="Status" />
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem press="onOrderPress">
+                        <cells>
+                            <Text text="{orderNumber}" />
+                            <Text text="{description}" />
+                            <Text text="{orderDate}" />
+                            <Text text="{totalAmount} {currency_code}" />
+                            <Text text="{status_code}" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </content>
+    </Page>
+</mvc:View>

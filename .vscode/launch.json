@@ -2,19 +2,25 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "cds serve",
+      "name": "cds watch",
       "request": "launch",
       "type": "node",
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "cds",
       "args": [
-        "serve",
-        "--with-mocks",
-        "--in-memory?"
+        "watch",
+        "--port",
+        "4004"
       ],
       "skipFiles": [
         "<node_internals>/**"
-      ]
+      ],
+      "serverReadyAction": {
+        "pattern": "server listening on.*?(http://localhost:\\d+)",
+        "uriFormat": "%s",
+        "action": "openExternally"
+      },
+      "console": "integratedTerminal"
     }
   ]
 }
