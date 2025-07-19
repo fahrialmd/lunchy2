@@ -7,12 +7,10 @@ using {
 
 using {com.fahrialmd.lunchy2 as lunchy2} from '../index';
 
-// Payment Methods Entity (Child of Buyer)
+// Payment Methods Entity (Child of User)
 entity PaymentMethods : cuid, managed {
-    buyer         : Association to lunchy2.Users;
-    paymentMethod : Association to lunchy2.PaymentMethodTypes;
+    user          : Association to lunchy2.Users;
     paymentName   : String(50);
     accountNumber : String(100);
-    isActive      : Boolean default true;
     isPrimary     : Boolean default false;
 }

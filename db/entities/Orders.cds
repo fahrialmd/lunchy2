@@ -22,7 +22,7 @@ entity Orders : cuid, managed {
     ];
     discountLimit   : Integer       @Semantics.amount.currencyCode: 'currency';
     totalAmount     : Integer       @Core.Computed  @Semantics.amount.currencyCode: 'currency';
-    currency        : Currency default 'IDR';
+    currency        : Currency;
     status          : Association to lunchy2.OrderStatuses;
 
     // Navigation to order items

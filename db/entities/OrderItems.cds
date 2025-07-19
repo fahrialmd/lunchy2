@@ -17,5 +17,5 @@ entity OrderItems : cuid, managed {
     unitPrice    : Integer  @Semantics.amount.currencyCode: 'currency';
     itemTotal    : Integer  @Core.Computed  @Semantics.amount.currencyCode: 'currency';
     itemStatus   : Association to lunchy2.ItemStatuses;
-    currency     : Currency default 'IDR';
+    currency     : Currency;
 }
