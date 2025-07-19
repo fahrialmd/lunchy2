@@ -1,0 +1,225 @@
+<mvc:View
+    controllerName="lunchy2.controller.OrderItemScreen"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:uxap="sap.uxap"
+    xmlns:table="sap.ui.table"
+    displayBlock="true"
+    height="100%"
+    busyIndicatorDelay="0"
+>
+    <uxap:ObjectPageLayout
+        id="idObjectPageLayout"
+        upperCaseAnchorBar="false"
+    >
+        <uxap:headerTitle>
+            <uxap:ObjectPageHeader
+                id="idObjectPageHeader"
+                objectTitle="Order {orderNumber}"
+                objectSubtitle="{description}"
+            >
+                <uxap:actions>
+                    <uxap:ObjectPageHeaderActionButton
+                        icon="sap-icon://edit"
+                        text="Edit"
+                        tooltip="Edit order"
+                    />
+                    <uxap:ObjectPageHeaderActionButton
+                        icon="sap-icon://refresh"
+                        text="Refresh"
+                        tooltip="Refresh"
+                    />
+                    <uxap:ObjectPageHeaderActionButton
+                        icon="sap-icon://delete"
+                        text="Delete"
+                        tooltip="Delete order"
+                    />
+                </uxap:actions>
+            </uxap:ObjectPageHeader>
+        </uxap:headerTitle>
+        <uxap:headerContent>
+            <VBox>
+                <Text
+                    text="Delivery Fee"
+                    class=""
+                />
+                <ObjectNumber
+                    number="{deliveryFee}"
+                    unit="{currency_code}"
+                />
+            </VBox>
+            <VBox>
+                <Text
+                    text="Discount"
+                    class=""
+                />
+                <ObjectNumber
+                    number="{discountPercent}"
+                    unit="%"
+                />
+            </VBox>
+            <VBox>
+                <Text
+                    text="Discount Limit"
+                    class=""
+                />
+                <ObjectNumber
+                    number="{discountLimit}"
+                    unit="{currency_code}"
+                />
+            </VBox>
+            <VBox>
+                <Text
+                    text="Total Amount"
+                    class=""
+                />
+                <ObjectNumber
+                    number="{totalAmount}"
+                    unit="{currency_code}"
+                />
+            </VBox>
+            <VBox alignItems="Center">
+                <Text
+                    text="Buyer"
+                    class=""
+                />
+                <Text text="{user/userName}" />
+            </VBox>
+            <VBox class="sapUiTinyMarginTop ">
+                <GenericTag
+                    text="{status/name}"
+                    status="{= 
+                        ${status/code} === 'O' ? 'Warning' : 
+                        ${status/code} === 'C' ? 'Success' : 
+                        ${status/code} === 'A' ? 'Information' : 
+                        'None'
+                    }"
+                />
+            </VBox>
+        </uxap:headerContent>
+        <uxap:sections>
+            <uxap:ObjectPageSection
+                title="Order Details"
+                titleUppercase="false"
+                class="noTopMargin"
+            >
+                <uxap:subSections>
+                    <uxap:ObjectPageSubSection title="Items Subtotals">
+                        <HBox class="sapUiSmallMargin customGapHBox">
+                            <VBox alignItems="Center">
+                                <Text
+                                    text="Total Price"
+                                    class="sapUiTinyMarginBottom"
+                                />
+                                <ObjectNumber
+                                    number="{totalAmountRaw}"
+                                    unit="{currency_code}"
+                                />
+                            </VBox>
+                            <VBox alignItems="Center">
+                                <Text
+                                    text="Overlimit Disc."
+                                    class="sapUiTinyMarginBottom"
+                                />
+                                <ObjectNumber
+                                    number="{discountLimitCalculated}"
+                                    unit="{currency_code}"
+                                />
+                            </VBox>
+                        </HBox>
+                    </uxap:ObjectPageSubSection>
+                    <uxap:ObjectPageSubSection title="Items Details">
+                        <table:Table
+                            id="idOrderItemTable"
+                            rows="{items}"
+                            selectionMode="None"
+                            enableColumnReordering="false"
+                            class="sapUiMediumMargin"
+                        >
+                            <table:columns>
+                                <table:Column>
+                                    <Label text="Customer Name" />
+                                    <table:template>
+                                        <Text text="{user/userName}" />
+                                    </table:template>
+                                </table:Column>
+
+                                <table:Column>
+                                    <Label text="Menu Item" />
+                                    <table:template>
+                                        <Text text="{menu}" />
+                                    </table:template>
+                                </table:Column>
+
+                                <table:Column>
+                                    <Label text="Quantity" />
+                                    <table:template>
+                                        <Text text="{quantity}" />
+                                    </table:template>
+                                </table:Column>
+
+                                <table:Column>
+                                    <Label text="Price" />
+                                    <table:template>
+                                        <ObjectNumber
+                                            number="{price}"
+                                            unit="{currency_code}"
+                                        />
+                                    </table:template>
+                                </table:Column>
+
+                                <table:Column>
+                                    <Label text="Delivery Fee" />
+                                    <table:template>
+                                        <ObjectNumber
+                                            number="{deliveryFee}"
+                                            unit="{currency_code}"
+                                        />
+                                    </table:template>
+                                </table:Column>
+
+                                <table:Column>
+                                    <Label text="Item Overlimit Disc." />
+                                    <table:template>
+                                        <ObjectNumber
+                                            number="{overlimit}"
+                                            unit="{currency_code}"
+                                        />
+                                    </table:template>
+                                </table:Column>
+
+                                <table:Column>
+                                    <Label text="Total" />
+                                    <table:template>
+                                        <ObjectNumber
+                                            number="{total}"
+                                            unit="{currency_code}"
+                                        />
+                                    </table:template>
+                                </table:Column>
+
+                                <table:Column>
+                                    <Label text="Status" />
+                                    <table:template>
+                                        <HBox alignItems="Center">
+                                            <ObjectStatus
+                                                text="{status/name}"
+                                                state="{= ${status/code} === 'P' ? 'Success' : 'Warning'}"
+                                                class="sapUiTinyMarginEnd"
+                                            />
+                                            <Button
+                                                icon="sap-icon://edit"
+                                                type="Transparent"
+                                                tooltip="Edit Status"
+                                            />
+                                        </HBox>
+                                    </table:template>
+                                </table:Column>
+                            </table:columns>
+                        </table:Table>
+                    </uxap:ObjectPageSubSection>
+                </uxap:subSections>
+            </uxap:ObjectPageSection>
+        </uxap:sections>
+    </uxap:ObjectPageLayout>
+</mvc:View>

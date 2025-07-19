@@ -1,56 +1,207 @@
 <mvc:View
     controllerName="lunchy2.controller.OrderScreen"
-    xmlns:mvc="sap.ui.core.mvc"
+    height="100%"
     xmlns="sap.m"
-    displayBlock="true"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.f"
+    xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:mvc="sap.ui.core.mvc"
 >
-    <Page
-        id="page"
-        title="{i18n>title}"
-    >
-        <content>
+    <f:DynamicPage headerExpanded="{/headerExpanded}">
+        <f:title>
+            <f:DynamicPageTitle>
+                <f:heading>
+                    <Title text="Lunchy 2" />
+                </f:heading>
+            </f:DynamicPageTitle>
+        </f:title>
+        <f:header>
+            <f:DynamicPageHeader>
+                <f:content>
+                    <fb:FilterBar
+                        id="idFilterBar"
+                        persistencyKey="ordersFilterBar"
+                        useToolbar="false"
+                        search="onFilterBarSearch"
+                        filterChange="onFilterBarFilterChange"
+                    >
+                        <fb:filterGroupItems>
+                            <fb:FilterGroupItem
+                                name="OrderNumber"
+                                label="Order Number"
+                                groupName="OrderGroup"
+                                visibleInFilterBar="true"
+                            >
+                                <fb:control>
+                                    <Input
+                                        name="OrderNumber"
+                                        placeholder="Enter order number..."
+                                        value="{path: '/filters/orderNumber', type: 'sap.ui.model.odata.type.String'}"
+                                        liveChange="onOrderNumberInputLiveChange"
+                                    />
+                                </fb:control>
+                            </fb:FilterGroupItem>
+                            <fb:FilterGroupItem
+                                name="Status"
+                                label="Status"
+                                groupName="OrderGroup"
+                                visibleInFilterBar="true"
+                            >
+                                <fb:control>
+                                    <MultiComboBox
+                                        name="Status"
+                                        selectionChange=".onOrderStatusesMultiComboBoxSelectionChange"
+                                        items="{
+                                            path: '/OrderStatuses',
+                                            templateShareable: true
+                                        }"
+                                    >
+                                        <core:Item
+                                            key="{code}"
+                                            text="{name}"
+                                        />
+                                    </MultiComboBox>
+                                </fb:control>
+                            </fb:FilterGroupItem>
+                            <fb:FilterGroupItem
+                                name="OrderDate"
+                                label="Order Date"
+                                groupName="OrderGroup"
+                                visibleInFilterBar="true"
+                            >
+                                <fb:control>
+                                    <DateRangeSelection
+                                        name="OrderDate"
+                                        placeholder="Select date range..."
+                                        change=".onDateRangeSelectionChange"
+                                    />
+                                </fb:control>
+                            </fb:FilterGroupItem>
+                            <fb:FilterGroupItem
+                                name="UserName"
+                                label="Customer"
+                                groupName="OrderGroup"
+                                visibleInFilterBar="true"
+                            >
+                                <fb:control>
+                                    <MultiComboBox
+                                        name="UserName"
+                                        selectionChange=".onUsersMultiComboBoxSelectionChange"
+                                        items="{
+                                            path: '/Users',
+                                            templateShareable: true
+                                        }"
+                                    >
+                                        <core:Item
+                                            key="{ID}"
+                                            text="{userName}"
+                                        />
+                                    </MultiComboBox>
+                                </fb:control>
+                            </fb:FilterGroupItem>
+                        </fb:filterGroupItems>
+                    </fb:FilterBar>
+                </f:content>
+            </f:DynamicPageHeader>
+        </f:header>
+        <f:content>
             <Table
-                id="ordersTable"
-                items="{/Orders}"
-                class="sapUiMediumMargin"
+                id="idOrdersTable"
+                inset="false"
+                items="{
+                    path: '/Orders'
+                }"
+                mode="None"
+                itemPress=".onOrdersTableItemPress"
             >
                 <headerToolbar>
                     <Toolbar>
                         <Title
-                            text="Orders"
+                            text="Orders ({= ${/Orders}.length || 0})"
                             level="H2"
+                        />
+                        <ToolbarSpacer />
+                        <Button
+                            id="idCreateOrderButton"
+                            text="Create Order"
+                            type="Emphasized"
+                            icon="sap-icon://add"
+                            press=".onCreateOrderButtonPress"
                         />
                     </Toolbar>
                 </headerToolbar>
                 <columns>
-                    <Column>
+                    <Column
+                        minScreenWidth="Tablet"
+                        demandPopin="true"
+                        popinDisplay="Inline"
+                    >
                         <Text text="Order Number" />
                     </Column>
-                    <Column>
+                    <Column
+                        minScreenWidth="Desktop"
+                        demandPopin="true"
+                        popinDisplay="Inline"
+                    >
                         <Text text="Description" />
                     </Column>
-                    <Column>
+                    <Column
+                        minScreenWidth="Tablet"
+                        demandPopin="true"
+                        popinDisplay="Inline"
+                    >
+                        <Text text="Buyer" />
+                    </Column>
+                    <Column
+                        minScreenWidth="Desktop"
+                        demandPopin="true"
+                        popinDisplay="Inline"
+                    >
                         <Text text="Order Date" />
                     </Column>
-                    <Column>
+                    <Column
+                        minScreenWidth="Tablet"
+                        demandPopin="true"
+                        popinDisplay="Inline"
+                    >
                         <Text text="Total Amount" />
                     </Column>
-                    <Column>
+                    <Column
+                        minScreenWidth="Phone"
+                        demandPopin="false"
+                    >
                         <Text text="Status" />
                     </Column>
                 </columns>
                 <items>
-                    <ColumnListItem press="onOrderPress">
+                    <ColumnListItem
+                        vAlign="Middle"
+                        press=".onColumnListItemOrderPress"
+                        type="Navigation"
+                    >
                         <cells>
-                            <Text text="{orderNumber}" />
-                            <Text text="{description}" />
+                            <ObjectIdentifier title="{orderNumber}" />
+                            <Text
+                                text="{description}"
+                                maxLines="2"
+                            />
+                            <Text text="{user/userName}" />
                             <Text text="{orderDate}" />
-                            <Text text="{totalAmount} {currency_code}" />
-                            <Text text="{status_code}" />
+                            <ObjectNumber
+                                number="{totalAmount}"
+                                unit="{currency_code}"
+                            />
+                            <ObjectStatus
+                                text="{status/name}"
+                                state="{
+                                    path: 'status_code',
+                                    formatter: '.formatStatusState'
+                                }"
+                            />
                         </cells>
                     </ColumnListItem>
                 </items>
             </Table>
-        </content>
-    </Page>
+        </f:content>
+    </f:DynamicPage>
 </mvc:View>

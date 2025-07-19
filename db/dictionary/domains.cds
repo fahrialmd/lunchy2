@@ -15,13 +15,6 @@ entity OrderStatuses : CodeList {
     key code : String(1) enum {
             Open = 'O';
             Close = 'C';
+            Cancel = 'A';
         } default 'O';
-}
-
-// Payment Method Type CodeList
-entity PaymentMethodTypes : CodeList {
-    key code : String(10) enum {
-            Bank = 'B';
-            EWallet = 'E';
-        };
 }
