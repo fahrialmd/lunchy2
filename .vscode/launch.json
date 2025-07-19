@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "cds watch",
+      "name": "Start Backend",
       "request": "launch",
       "type": "node",
       "cwd": "${workspaceFolder}",
@@ -10,17 +10,21 @@
       "args": [
         "watch",
         "--port",
-        "4004"
+        "4004",
+        "--no-open"
       ],
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "serverReadyAction": {
-        "pattern": "server listening on.*?(http://localhost:\\d+)",
-        "uriFormat": "%s",
-        "action": "openExternally"
-      },
       "console": "integratedTerminal"
+    },
+    {
+      "name": "Start Frontend",
+      "request": "launch",
+      "type": "chrome",
+      "url": "http://localhost:4004",
+      "webRoot": "${workspaceFolder}/app",
+      "sourceMaps": true
     }
   ]
 }
