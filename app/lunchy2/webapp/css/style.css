@@ -2,3 +2,15 @@ html, body {
     overflow-x: hidden !important;
     
 }
+
+.noTopMargin {
+    margin-top: 0 !important;
+}
+
+.customGapHBox > * {
+    margin-right: 3rem;
+}
+
+.customGapHBox > *:last-child {
+    margin-right: 0;
+}
