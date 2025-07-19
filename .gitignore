@@ -28,8 +28,11 @@ mta_archives/
 *.flattened-pom.xml
 
 # IDEs
-# .vscode
+.vscode
 # .idea
 
 # @cap-js/cds-typer
 @cds-models
+
+*.sqlite*
+./db/data
