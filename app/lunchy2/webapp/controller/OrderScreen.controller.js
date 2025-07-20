@@ -4,8 +4,9 @@ sap.ui.define([
     "sap/ui/model/FilterOperator",
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageToast",
-    "sap/m/MessageBox"
-], function (Controller, Filter, FilterOperator, JSONModel, MessageToast, MessageBox) {
+    "sap/m/MessageBox",
+    "sap/ui/core/Fragment"
+], function (Controller, Filter, FilterOperator, JSONModel, MessageToast, MessageBox, Fragment) {
     "use strict";
 
     return Controller.extend("lunchy2.controller.OrderScreen", {
@@ -20,20 +21,22 @@ sap.ui.define([
                     dateRange: null,
                     users: []
                 },
-                filtersActive: 0
+                filtersActive: 0,
+                formData: {
+                    OrderNumber: "",
+                    Description: "",
+                    Buyer: "",
+                    OrderDate: null,
+                    OrderTime: null,
+                    DeliveryFee: 0,
+                    Discount: 0,
+                    DiscountLimit: 0
+                }
             });
             this.getView().setModel(oViewModel, "viewModel");
 
             // Get reference to the main model
             this._oMainModel = this.getOwnerComponent().getModel();
-
-            // Initialize the page
-            this._initializePage();
-        },
-
-        _initializePage: function () {
-            // Any additional initialization logic can go here
-            console.log("OrderScreen initialized");
         },
 
         /* =========================================================== */
@@ -46,7 +49,6 @@ sap.ui.define([
 
         onFilterBarFilterChange: function (oEvent) {
             // Optional: Auto-apply filters on change
-            // this._applyFilters();
         },
 
         onOrderNumberInputLiveChange: function (oEvent) {
@@ -59,8 +61,6 @@ sap.ui.define([
             var aSelectedKeys = oEvent.getSource().getSelectedKeys();
             var oViewModel = this.getView().getModel("viewModel");
             oViewModel.setProperty("/filters/status", aSelectedKeys);
-
-            // Optional: Auto-apply filters
             this._applyFilters();
         },
 
@@ -74,8 +74,6 @@ sap.ui.define([
                 from: oFromDate,
                 to: oToDate
             });
-
-            // Optional: Auto-apply filters
             this._applyFilters();
         },
 
@@ -83,8 +81,6 @@ sap.ui.define([
             var aSelectedKeys = oEvent.getSource().getSelectedKeys();
             var oViewModel = this.getView().getModel("viewModel");
             oViewModel.setProperty("/filters/users", aSelectedKeys);
-
-            // Optional: Auto-apply filters
             this._applyFilters();
         },
 
@@ -93,7 +89,6 @@ sap.ui.define([
         /* =========================================================== */
 
         onOrdersTableItemPress: function (oEvent) {
-            // This might be for table-level events if needed
             console.log("Table item pressed", oEvent);
         },
 
@@ -115,13 +110,156 @@ sap.ui.define([
             });
         },
 
-        onCreateOrderButtonPress: function () {
-            MessageBox.information("Create Order functionality will be implemented soon.", {
-                title: "Feature Coming Soon"
-            });
+        /* =========================================================== */
+        /* Create Order Dialog Methods                                 */
+        /* =========================================================== */
 
-            // TODO: Implement create order functionality
-            // This could open a dialog or navigate to a create order page
+        onCreateOrderButtonPress: function () {
+            if (!this._oCreateOrderDialog) {
+                // Fragment.load returns a Promise - handle it properly
+                Fragment.load({
+                    name: 'lunchy2.view.fragments.CreateOrderDialog',
+                    controller: this,
+                }).then((oDialog) => {
+                    this._oCreateOrderDialog = oDialog;
+                    this.getView().addDependent(this._oCreateOrderDialog);
+                    this._setDefaultValues();
+                    this._oCreateOrderDialog.open();
+                });
+            } else {
+                // Dialog already exists, just open it
+                this._setDefaultValues();
+                this._oCreateOrderDialog.open();
+            }
+        },
+
+        _setDefaultValues: async function () {
+            const oViewModel = this.getView().getModel("viewModel");
+            const oDate = new Date();
+            const sDate = oDate.getFullYear() + "-" + String(oDate.getMonth() + 1).padStart(2, '0') + "-" + String(oDate.getDate()).padStart(2, '0');
+
+            const sDateClean = oDate.getFullYear() + String(oDate.getMonth() + 1).padStart(2, '0') + String(oDate.getDate()).padStart(2, '0');
+            const sCount = await this._getOrdersCountByDate(sDate);
+            const sOrderNumber = sDateClean + sCount;
+
+            oViewModel.setProperty("/formData/OrderNumber", sOrderNumber);
+        },
+
+
+        _getOrdersCountByDate: function (sDate) {
+            const oModel = this.getOwnerComponent().getModel();
+
+            const aFilters = [
+                new Filter("createdAt", FilterOperator.Contains, sDate),
+            ];
+            const oBinding = oModel.bindList("/Orders", null, null, aFilters);
+
+            // RETURN the promise
+            return oBinding.requestContexts().then((aContexts) => {
+                const sCount = String(aContexts.length).padStart(4, '0');
+                return sCount;
+            }).catch(function (oError) {
+                console.error("Error getting orders count:", oError);
+                MessageToast.show("Error loading orders count, Please try again");
+                return; // Return default on error
+            });
+        },
+
+        onCancelButtonPress: function () {
+            this._oCreateOrderDialog.close();
+        },
+
+        onSaveButtonPress: function () {
+            var oViewModel = this.getView().getModel("viewModel");
+            var oFormData = oViewModel.getProperty("/formData");
+
+            // Get the main model (OData model)
+            var oModel = this.getOwnerComponent().getModel();
+
+            // Show busy indicator
+            var oDialog = this._oCreateOrderDialog;
+
+
+
+            // Prepare the data for backend
+            var oNewOrder = {
+                orderNumber: oFormData.OrderNumber,
+                description: oFormData.Description,
+                user: { ID: oFormData.Buyer },
+                orderDate: oFormData.OrderDate,
+                orderTime: oFormData.OrderTime,
+                deliveryFee: parseFloat(oFormData.DeliveryFee) || 0,
+                discountPercent: parseFloat(oFormData.Discount) || 0,
+                discountLimit: parseFloat(oFormData.DiscountLimit) || 0,
+                status_code: "O",
+                // Set default status to "Open"
+                // Add any other required fields for your backend
+            };
+
+            console.log(oNewOrder);
+
+
+            // Create new entry in the backend
+            var oBinding = oModel.bindList("/Orders");
+
+            oBinding.create(oNewOrder).then(function (oContext) {
+                // Success - data saved
+                MessageToast.show("Order created successfully!");
+
+                // Close the dialog
+                oDialog.close();
+                oDialog.setBusy(false);
+
+                // Optional: Refresh the table to show new order
+                var oTable = this.byId("idOrdersTable");
+                oTable.getBinding("items").refresh();
+
+                // Clear form data
+                this._clearFormData();
+
+            }.bind(this)).catch(function (oError) {
+                // Error handling
+                console.error("Error creating order:", oError);
+
+                oDialog.setBusy(false);
+
+                // Show error message
+                MessageBox.error("Failed to create order. Please try again.\n\nError: " +
+                    (oError.message || "Unknown error"));
+            });
+        },
+
+        _getUsers: function (userEmpID) {
+            const oModel = this.getOwnerComponent().getModel();
+
+            const aFilters = [
+                new Filter("userEmpID", FilterOperator.EQ, userEmpID),
+            ];
+            const oBinding = oModel.bindList("/Users", null, null, aFilters);
+
+            // RETURN the promise
+            return oBinding.requestContexts().then((aContexts) => {
+                console.log(aContexts);
+                return aContexts[0];
+            }).catch(function (oError) {
+                console.error("Error getting orders count:", oError);
+                MessageToast.show("Something went wrong, Please try again");
+                return;
+            });
+        },
+
+        _clearFormData: function () {
+            var oViewModel = this.getView().getModel("viewModel");
+            oViewModel.setProperty("/formData", {
+                OrderNumber: "",
+                Description: "",
+                Buyer: "",
+                OrderDate: null,
+                OrderTime: null,
+                DeliveryFee: 0,
+                Discount: 0,
+                DiscountLimit: 0
+            });
         },
 
         /* =========================================================== */
@@ -176,7 +314,7 @@ sap.ui.define([
 
             // Show message
             var sMessage = iFilterCount > 0 ?
-                `Applied ${iFilterCount} filter(s)` :
+                "Applied " + iFilterCount + " filter(s)" :
                 "All filters cleared";
             MessageToast.show(sMessage);
         },
@@ -232,6 +370,9 @@ sap.ui.define([
             // Cleanup when controller is destroyed
             if (this._oViewModel) {
                 this._oViewModel.destroy();
+            }
+            if (this._oCreateOrderDialog) {
+                this._oCreateOrderDialog.destroy();
             }
         }
     });

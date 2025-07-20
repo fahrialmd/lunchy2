@@ -7,7 +7,7 @@
     xmlns:fb="sap.ui.comp.filterbar"
     xmlns:mvc="sap.ui.core.mvc"
 >
-    <f:DynamicPage headerExpanded="{/headerExpanded}">
+    <f:DynamicPage headerExpanded="{viewModel>/headerExpanded}">
         <f:title>
             <f:DynamicPageTitle>
                 <f:heading>
@@ -36,7 +36,7 @@
                                     <Input
                                         name="OrderNumber"
                                         placeholder="Enter order number..."
-                                        value="{path: '/filters/orderNumber', type: 'sap.ui.model.odata.type.String'}"
+                                        value="{viewModel>/filters/orderNumber}"
                                         liveChange="onOrderNumberInputLiveChange"
                                     />
                                 </fb:control>
@@ -117,7 +117,7 @@
                 <headerToolbar>
                     <Toolbar>
                         <Title
-                            text="Orders ({= ${/Orders}.length || 0})"
+                            text="Orders List"
                             level="H2"
                         />
                         <ToolbarSpacer />

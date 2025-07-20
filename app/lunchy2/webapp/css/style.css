@@ -1,6 +1,9 @@
 html, body {
+    overflow-x: hidden !important;    
+}
+
+[data-sap-ui*="OrderItemScreen"] {
     overflow-x: hidden !important;
-    
 }
 
 .noTopMargin {

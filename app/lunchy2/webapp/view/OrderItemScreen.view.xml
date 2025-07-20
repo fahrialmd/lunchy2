@@ -129,94 +129,112 @@
                         </HBox>
                     </uxap:ObjectPageSubSection>
                     <uxap:ObjectPageSubSection title="Items Details">
-                        <table:Table
-                            id="idOrderItemTable"
-                            rows="{items}"
-                            selectionMode="None"
-                            enableColumnReordering="false"
-                            class="sapUiMediumMargin"
-                        >
-                            <table:columns>
-                                <table:Column>
-                                    <Label text="Customer Name" />
-                                    <table:template>
-                                        <Text text="{user/userName}" />
-                                    </table:template>
-                                </table:Column>
+                        <VBox>
+                            <Toolbar>
+                                <Title
+                                    text="Order Items"
+                                    level="H4"
+                                />
+                                <ToolbarSpacer />
+                                <Button
+                                    id="idAddItemButton"
+                                    icon="sap-icon://add"
+                                    press=".onButtonAddPress"
+                                />
+                                <Button
+                                    id="idDeleteItemButton"
+                                    icon="sap-icon://delete"
+                                    press=".onButtonDeletePress"
+                                />
+                            </Toolbar>
+                            <table:Table
+                                id="idOrderItemTable"
+                                rows="{items}"
+                                selectionMode="Multi"
+                                enableColumnReordering="false"
+                            >
+                                <table:columns>
+                                    <table:Column>
+                                        <Label text="Customer Name" />
+                                        <table:template>
+                                            <Text text="{user/userName}" />
+                                        </table:template>
+                                    </table:Column>
 
-                                <table:Column>
-                                    <Label text="Menu Item" />
-                                    <table:template>
-                                        <Text text="{menu}" />
-                                    </table:template>
-                                </table:Column>
+                                    <table:Column>
+                                        <Label text="Menu Item" />
+                                        <table:template>
+                                            <Text text="{menu}" />
+                                        </table:template>
+                                    </table:Column>
 
-                                <table:Column>
-                                    <Label text="Quantity" />
-                                    <table:template>
-                                        <Text text="{quantity}" />
-                                    </table:template>
-                                </table:Column>
+                                    <table:Column>
+                                        <Label text="Quantity" />
+                                        <table:template>
+                                            <Text text="{quantity}" />
+                                        </table:template>
+                                    </table:Column>
 
-                                <table:Column>
-                                    <Label text="Price" />
-                                    <table:template>
-                                        <ObjectNumber
-                                            number="{price}"
-                                            unit="{currency_code}"
-                                        />
-                                    </table:template>
-                                </table:Column>
-
-                                <table:Column>
-                                    <Label text="Delivery Fee" />
-                                    <table:template>
-                                        <ObjectNumber
-                                            number="{deliveryFee}"
-                                            unit="{currency_code}"
-                                        />
-                                    </table:template>
-                                </table:Column>
-
-                                <table:Column>
-                                    <Label text="Item Overlimit Disc." />
-                                    <table:template>
-                                        <ObjectNumber
-                                            number="{overlimit}"
-                                            unit="{currency_code}"
-                                        />
-                                    </table:template>
-                                </table:Column>
-
-                                <table:Column>
-                                    <Label text="Total" />
-                                    <table:template>
-                                        <ObjectNumber
-                                            number="{total}"
-                                            unit="{currency_code}"
-                                        />
-                                    </table:template>
-                                </table:Column>
-
-                                <table:Column>
-                                    <Label text="Status" />
-                                    <table:template>
-                                        <HBox alignItems="Center">
-                                            <ObjectStatus
-                                                text="{status/name}"
-                                                state="{= ${status/code} === 'P' ? 'Success' : 'Warning'}"
-                                                class="sapUiTinyMarginEnd"
+                                    <table:Column>
+                                        <Label text="Price" />
+                                        <table:template>
+                                            <ObjectNumber
+                                                number="{price}"
+                                                unit="{currency_code}"
                                             />
-                                            <Button
-                                                icon="sap-icon://edit"
-                                                type="Transparent"
-                                                tooltip="Edit Status"
+                                        </table:template>
+                                    </table:Column>
+
+                                    <table:Column>
+                                        <Label text="Delivery Fee" />
+                                        <table:template>
+                                            <ObjectNumber
+                                                number="{deliveryFee}"
+                                                unit="{currency_code}"
                                             />
-                                        </HBox>
-                                    </table:template>
-                                </table:Column>
-                            </table:columns>
-                        </table:Table>
+                                        </table:template>
+                                    </table:Column>
+
+                                    <table:Column>
+                                        <Label text="Item Overlimit Disc." />
+                                        <table:template>
+                                            <ObjectNumber
+                                                number="{overlimit}"
+                                                unit="{currency_code}"
+                                            />
+                                        </table:template>
+                                    </table:Column>
+
+                                    <table:Column>
+                                        <Label text="Total" />
+                                        <table:template>
+                                            <ObjectNumber
+                                                number="{total}"
+                                                unit="{currency_code}"
+                                            />
+                                        </table:template>
+                                    </table:Column>
+
+                                    <table:Column>
+                                        <Label text="Status" />
+                                        <table:template>
+                                            <HBox alignItems="Center">
+                                                <ObjectStatus
+                                                    text="{status/name}"
+                                                    state="{= ${status/code} === 'P' ? 'Success' : 'Warning'}"
+                                                    class="sapUiTinyMarginEnd"
+                                                />
+                                                <Button
+                                                    icon="sap-icon://edit"
+                                                    type="Transparent"
+                                                    tooltip="Edit Status"
+                                                />
+                                            </HBox>
+                                        </table:template>
+                                    </table:Column>
+                                </table:columns>
+                            </table:Table>
+                        </VBox>
                     </uxap:ObjectPageSubSection>
                 </uxap:subSections>
             </uxap:ObjectPageSection>
