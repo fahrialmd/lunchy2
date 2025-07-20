@@ -10,8 +10,7 @@
       "args": [
         "watch",
         "--port",
-        "4004",
-        "--no-open"
+        "4004"
       ],
       "skipFiles": [
         "<node_internals>/**"
@@ -25,6 +24,16 @@
       "url": "http://localhost:4004",
       "webRoot": "${workspaceFolder}/app",
       "sourceMaps": true
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug Full Stack",
+      "configurations": [
+        "Start Backend",
+        "Start Frontend"
+      ],
+      "stopAll": true
     }
   ]
 }
