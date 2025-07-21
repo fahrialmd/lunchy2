@@ -4,6 +4,7 @@
     xmlns="sap.m"
     xmlns:uxap="sap.uxap"
     xmlns:table="sap.ui.table"
+    xmlns:core="sap.ui.core"
     displayBlock="true"
     height="100%"
     busyIndicatorDelay="0"
@@ -59,30 +60,14 @@
                 />
             </VBox>
             <VBox>
-                <Text
-                    text="Discount Limit"
-                    class=""
-                />
+                <Text text="Discount Limit" />
                 <ObjectNumber
                     number="{discountLimit}"
                     unit="{currency_code}"
                 />
             </VBox>
-            <VBox>
-                <Text
-                    text="Total Amount"
-                    class=""
-                />
-                <ObjectNumber
-                    number="{totalAmount}"
-                    unit="{currency_code}"
-                />
-            </VBox>
             <VBox alignItems="Center">
-                <Text
-                    text="Buyer"
-                    class=""
-                />
+                <Text text="Buyer" />
                 <Text text="{user/userName}" />
             </VBox>
             <VBox class="sapUiTinyMarginTop ">
@@ -126,115 +111,153 @@
                                     unit="{currency_code}"
                                 />
                             </VBox>
+                            <VBox alignItems="Center">
+                                <Text
+                                    text="Total Amount"
+                                    class="sapUiTinyMarginBottom"
+                                />
+                                <ObjectNumber
+                                    number="{totalAmount}"
+                                    unit="{currency_code}"
+                                />
+                            </VBox>
                         </HBox>
                     </uxap:ObjectPageSubSection>
                     <uxap:ObjectPageSubSection title="Items Details">
-                        <VBox>
-                            <Toolbar>
-                                <Title
-                                    text="Order Items"
-                                    level="H4"
+                        <table:Table
+                            id="idOrderItemTable"
+                            rows="{items}"
+                            selectionMode="Multi"
+                            enableColumnReordering="false"
+                            rowMode="fixed"
+                            alternateRowColors="true"
+                            rowActionCount="1"
+                        >
+                            <table:extension>
+                                <OverflowToolbar style="Clear">
+                                    <Title
+                                        id="idOrderItemsTableTitle"
+                                        text="Order Items"
+                                    />
+                                    <ToolbarSpacer />
+                                    <Button
+                                        id="idAddItemButton"
+                                        icon="sap-icon://add"
+                                        press=".onButtonAddItemPress"
+                                    />
+                                </OverflowToolbar>
+                            </table:extension>
+                            <table:rowSettingsTemplate>
+                                <table:RowSettings
+                                    highlight="{= ${status_code} === 'P' ? 'Success' : 'Warning'}"
                                 />
-                                <ToolbarSpacer />
-                                <Button
-                                    id="idAddItemButton"
-                                    icon="sap-icon://add"
-                                    press=".onButtonAddPress"
-                                />
-                                <Button
-                                    id="idDeleteItemButton"
-                                    icon="sap-icon://delete"
-                                    press=".onButtonDeletePress"
-                                />
-                            </Toolbar>
-                            <table:Table
-                                id="idOrderItemTable"
-                                rows="{items}"
-                                selectionMode="Multi"
-                                enableColumnReordering="false"
-                            >
-                                <table:columns>
-                                    <table:Column>
-                                        <Label text="Customer Name" />
-                                        <table:template>
-                                            <Text text="{user/userName}" />
-                                        </table:template>
-                                    </table:Column>
-
-                                    <table:Column>
-                                        <Label text="Menu Item" />
-                                        <table:template>
-                                            <Text text="{menu}" />
-                                        </table:template>
-                                    </table:Column>
-
-                                    <table:Column>
-                                        <Label text="Quantity" />
-                                        <table:template>
-                                            <Text text="{quantity}" />
-                                        </table:template>
-                                    </table:Column>
-
-                                    <table:Column>
-                                        <Label text="Price" />
-                                        <table:template>
-                                            <ObjectNumber
-                                                number="{price}"
-                                                unit="{currency_code}"
+                            </table:rowSettingsTemplate>
+                            <!-- Fixed row actions -->
+                            <table:rowActionTemplate>
+                                <table:RowAction>
+                                    <table:items>
+                                        <table:RowActionItem
+                                            type="Delete"
+                                            press="onRowActionItemPress"
+                                            tooltip="Delete this item"
+                                        />
+                                    </table:items>
+                                </table:RowAction>
+                            </table:rowActionTemplate>
+                            <table:columns>
+                                <table:Column>
+                                    <Label text="Customer Name" />
+                                    <table:template>
+                                        <ComboBox
+                                            items="{/Users}"
+                                            selectedKey="{user_ID}"
+                                            placeholder="Search and select user..."
+                                        >
+                                            <core:ListItem
+                                                key="{ID}"
+                                                text="{userName}"
+                                                additionalText="{userEmpID}"
                                             />
-                                        </table:template>
-                                    </table:Column>
+                                        </ComboBox>
+                                    </table:template>
+                                </table:Column>
 
-                                    <table:Column>
-                                        <Label text="Delivery Fee" />
-                                        <table:template>
-                                            <ObjectNumber
-                                                number="{deliveryFee}"
-                                                unit="{currency_code}"
+                                <table:Column>
+                                    <Label text="Menu Item" />
+                                    <table:template>
+                                        <Input value="{menu}" />
+                                    </table:template>
+                                </table:Column>
+
+                                <table:Column>
+                                    <Label text="Quantity" />
+                                    <table:template>
+                                        <Input value="{quantity}" />
+                                    </table:template>
+                                </table:Column>
+
+                                <table:Column>
+                                    <Label text="Price" />
+                                    <table:template>
+                                        <HBox alignItems="Center">
+                                            <Input
+                                                value="{price}"
+                                                placeholder="0"
                                             />
-                                        </table:template>
-                                    </table:Column>
+                                        </HBox>
+                                    </table:template>
+                                </table:Column>
 
-                                    <table:Column>
-                                        <Label text="Item Overlimit Disc." />
-                                        <table:template>
-                                            <ObjectNumber
-                                                number="{overlimit}"
-                                                unit="{currency_code}"
-                                            />
-                                        </table:template>
-                                    </table:Column>
+                                <table:Column>
+                                    <Label text="Delivery Fee" />
+                                    <table:template>
+                                        <ObjectNumber
+                                            number="{deliveryFee}"
+                                            unit="{currency_code}"
+                                        />
+                                    </table:template>
+                                </table:Column>
 
-                                    <table:Column>
-                                        <Label text="Total" />
-                                        <table:template>
-                                            <ObjectNumber
-                                                number="{total}"
-                                                unit="{currency_code}"
-                                            />
-                                        </table:template>
-                                    </table:Column>
+                                <table:Column>
+                                    <Label text="Item Overlimit Disc." />
+                                    <table:template>
+                                        <ObjectNumber
+                                            number="{overlimit}"
+                                            unit="{currency_code}"
+                                        />
+                                    </table:template>
+                                </table:Column>
 
-                                    <table:Column>
-                                        <Label text="Status" />
-                                        <table:template>
-                                            <HBox alignItems="Center">
-                                                <ObjectStatus
-                                                    text="{status/name}"
-                                                    state="{= ${status/code} === 'P' ? 'Success' : 'Warning'}"
-                                                    class="sapUiTinyMarginEnd"
+                                <table:Column>
+                                    <Label text="Total" />
+                                    <table:template>
+                                        <ObjectNumber
+                                            number="{total}"
+                                            unit="{currency_code}"
+                                        />
+                                    </table:template>
+                                </table:Column>
+
+                                <table:Column>
+                                    <Label text="Status" />
+                                    <table:template>
+                                        <HBox alignItems="Center">
+                                            <ComboBox
+                                                items="{/ItemStatuses}"
+                                                selectedKey="{status_code}"
+                                                placeholder="Select status..."
+                                            >
+                                                <core:ListItem
+                                                    key="{code}"
+                                                    text="{name}"
+                                                    additionalText="{code}"
                                                 />
-                                                <Button
-                                                    icon="sap-icon://edit"
-                                                    type="Transparent"
-                                                    tooltip="Edit Status"
-                                                />
-                                            </HBox>
-                                        </table:template>
-                                    </table:Column>
-                                </table:columns>
-                            </table:Table>
-                        </VBox>
+                                            </ComboBox>
+                                        </HBox>
+                                    </table:template>
+                                </table:Column>
+                            </table:columns>
+                        </table:Table>
                     </uxap:ObjectPageSubSection>
                 </uxap:subSections>
             </uxap:ObjectPageSection>
