@@ -1,0 +1,6 @@
+ID,user_ID,paymentName,accountNumber,isPrimary,createdAt,createdBy,modifiedAt,modifiedBy
+86caebca-60db-4180-828f-6d9b512541b1,20084849-dd2b-4e47-9572-2b913a08fa3c,Gopay,081517736131,true,,,,
+677d6e46-38a0-4ae5-8f1d-ce2bae9f6350,7c5095c9-619e-4b9f-b2aa-b5dcad024ab4,Gopay,085704790993,true,,,,
+c76eee78-723d-4dbf-b56a-31b2d7dcbe4f,7c5095c9-619e-4b9f-b2aa-b5dcad024ab4,Bank Jago,506207332341,false,,,,
+01d0d522-7d4b-4583-8dd9-6253942e032c,10f01a56-21b1-4201-b50c-8f1a5e5cc2c5,Gopay,081933071212,true,,,,
+f4e53305-b633-4ce7-ad76-d85b8743c86d,2d49b10b-25a0-4f8d-b79c-3a2a03ad2189,Gopay,081340637305,true,,,,
