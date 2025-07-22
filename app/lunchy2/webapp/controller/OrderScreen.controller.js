@@ -136,7 +136,7 @@ sap.ui.define([
         _setDefaultValues: async function () {
             const oViewModel = this.getView().getModel("viewModel");
             const oDate = new Date();
-            
+
             // 1. Set Order Date as 'yyyy-MM-dd' string
             const sFormattedDate =
                 oDate.getFullYear() + "-" +
@@ -144,13 +144,13 @@ sap.ui.define([
                 String(oDate.getDate()).padStart(2, '0');
 
             oViewModel.setProperty("/formData/OrderDate", sFormattedDate);
-                
+
             // 2. Set Order Time (format as 'HH:mm:ss')
             const hours = String(oDate.getHours()).padStart(2, '0');
             const minutes = String(oDate.getMinutes()).padStart(2, '0');
             const seconds = String(oDate.getSeconds()).padStart(2, '0');
             const sTime = `${hours}:${minutes}:${seconds}`;
-            
+
             oViewModel.setProperty("/formData/OrderTime", sTime);
 
             // 3. Generate Order Number
@@ -191,13 +191,8 @@ sap.ui.define([
             var oViewModel = this.getView().getModel("viewModel");
             var oFormData = oViewModel.getProperty("/formData");
 
-            // Get the main model (OData model)
-            var oModel = this.getOwnerComponent().getModel();
-
             // Show busy indicator
-            var oDialog = this._oCreateOrderDialog;
-
-
+            this._oCreateOrderDialog.setBusy(true);
 
             // Prepare the data for backend
             var oNewOrder = {
@@ -209,24 +204,23 @@ sap.ui.define([
                 deliveryFee: parseFloat(oFormData.DeliveryFee) || 0,
                 discountPercent: parseFloat(oFormData.Discount) || 0,
                 discountLimit: parseFloat(oFormData.DiscountLimit) || 0,
-                status_code: "O",
-                // Set default status to "Open"
-                // Add any other required fields for your backend
+                status_code: "O"
             };
-
-            console.log(oNewOrder);
 
 
             // Create new entry in the backend
-            var oBinding = oModel.bindList("/Orders");
+            var oBinding = this._oMainModel.bindList("/Orders");
 
-            oBinding.create(oNewOrder).then(function (oContext) {
-                // Success - data saved
+            // FIXED: OData V4 way to handle creation
+            var oContext = oBinding.create(oNewOrder);
+
+            oContext.created().then(function () {
+                // Success - data saved on server
                 MessageToast.show("Order created successfully!");
 
-                // Close the dialog
-                oDialog.close();
-                oDialog.setBusy(false);
+                // Close Dialog
+                this._oCreateOrderDialog.close();
+                this._oCreateOrderDialog.setBusy(false);
 
                 // Optional: Refresh the table to show new order
                 var oTable = this.byId("idOrdersTable");
@@ -244,7 +238,7 @@ sap.ui.define([
                 // Show error message
                 MessageBox.error("Failed to create order. Please try again.\n\nError: " +
                     (oError.message || "Unknown error"));
-            });
+            }.bind(this));
         },
 
         _getUsers: function (userEmpID) {

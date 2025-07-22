@@ -158,7 +158,7 @@
                                     <table:items>
                                         <table:RowActionItem
                                             type="Delete"
-                                            press="onRowActionItemPress"
+                                            press="onRowActionItemDeletePress"
                                             tooltip="Delete this item"
                                         />
                                     </table:items>
