@@ -4,10 +4,11 @@
 This is the SAP CAP version of Lunchy.
 
 📄 Spreadsheet Version (v1)
---Launched May 28, 2025
+-- Launched May 28, 2025 --
 Lunchy originally started as a simple spreadsheet designed to help a small team track food order costs and split delivery fees. What began as a quick solution turned out to be highly useful and was adopted regularly for group orders — proving the need for a more structured system.
 
 ☁️ SAP CAP Version (v2)
+-- Still Under Development --
 As part of our study and exploration of SAP CAP (Cloud Application Programming), we rebuilt Lunchy using the SAP CAP framework. This version enhances data validation, enables easier tracking of order history, supports role-based access and payment monitoring, and provides a scalable foundation for future improvements such as payment integration.
 
 ## Purpose
@@ -42,7 +43,7 @@ Disadvantages:
 
 ## Collaborators
 SAP Technical Consultants
-- _Fachri: Lead Developer, Quality Controller, User_
+- _Fahri: Lead Developer, Quality Controller, User_
 https://github.com/fahrialmd
 - _Clarice: Developer, Business Analyst, Main User_
 https://github.com/clarice-silvanus
