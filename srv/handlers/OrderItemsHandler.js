@@ -28,17 +28,17 @@ module.exports = function () {
     this.after('READ', 'OrderItems', async (items) => {
         if (!Array.isArray(items)) items = [items];
 
-        for (const item of items) {
-            await this._calculateComputedFields(item);
-        }
+        // for (const item of items) {
+        //     await this._calculateComputedFields(item);
+        // }
     });
 
     this.after(['CREATE', 'UPDATE', 'DELETE'], 'OrderItems', async (item, req) => {
         console.log('Order item changed, recalculating delivery fees');
 
-        if (item.order_ID) {
-            await this._recalculateAllItemsInOrder(item.order_ID);
-        }
+        // if (item.order_ID) {
+        //     await this._recalculateAllItemsInOrder(item.order_ID);
+        // }
     });
 
     this._calculateComputedFields = async function (item) {

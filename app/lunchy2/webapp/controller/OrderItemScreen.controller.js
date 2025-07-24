@@ -1,11 +1,15 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/m/MessageToast",
-    "sap/m/MessageBox"
+    "sap/m/MessageBox",
+    "lunchy2/utils/QueryHelper",
+    "lunchy2/utils/CalculateFieldsHelper"
 ], function (
     Controller,
     MessageToast,
-    MessageBox
+    MessageBox,
+    QueryHelper,
+    CalculateFieldsHelper
 ) {
     "use strict";
 
@@ -13,13 +17,13 @@ sap.ui.define([
         onInit: function () {
             const oRouter = this.getOwnerComponent().getRouter();
             oRouter.getRoute("RouteOrderItemScreen").attachPatternMatched(this._onRouteMatched, this);
+            this._oModel = this.getView().getModel();
         },
 
         _onRouteMatched: function (oEvent) {
-            const sOrderId = oEvent.getParameter("arguments").OrderID;
-
+            this._sOrderId = oEvent.getParameter("arguments").OrderID;
             // Bind the view to the specific order
-            const sOrderPath = "/Orders(" + sOrderId + ")";
+            const sOrderPath = "/Orders(" + this._sOrderId + ")";
             this.getView().bindElement({
                 path: sOrderPath,
                 $expand: "items,items/itemStatus,status,user",
@@ -46,7 +50,13 @@ sap.ui.define([
                 currency_code: "IDR"          // Default currency
             };
 
-            // SOLUTION 1: Get binding directly from the table
+            // Calculate Fields
+            this._calculateFields();
+
+            console.log("Woyyyyyyyyyy");
+
+
+            // Get binding directly from the table
             var oTable = this.byId("idOrderItemTable");
             var oItemsBinding = oTable.getBinding("rows");
 
@@ -65,6 +75,40 @@ sap.ui.define([
                 console.error("Error creating item:", oError);
                 MessageToast.show("Failed to add new item. Please try again.");
             });
+        },
+
+        _calculateFields: async function () {
+            const oModel = this.getView().getModel();
+            const aOrderItems = await this._getOrderItems(oModel);
+            const oOrder = await this._getOrder(oModel);
+            
+            aOrderItems = CalculateFieldsHelper.calculateDeliveryFee(oOrder.deliveryFee, aOrderItems)
+
+
+
+        },
+
+        _getOrderItems: function (oModel) {
+            return QueryHelper.getByFilters(oModel, "OrderItems", { order_ID: this._sOrderId }, {})
+                .then(function (aContexts) {
+                    console.log("All order items:", aContexts);
+                    return aContexts
+                })
+                .catch(function (oError) {
+                    console.error("Error loading items:", oError);
+                    throw oError
+                });
+        },
+
+        _getOrder: function (oModel) {
+            return QueryHelper.getById(oModel, "Orders", this._sOrderId, {})
+                .then((oContext) => {
+                    return oContext;
+                })
+                .catch(function (oError) {
+                    console.error("Error loading order:", oError);
+                    throw oError
+                })
         },
 
         onRowActionItemDeletePress: function (oEvent) {
@@ -115,6 +159,19 @@ sap.ui.define([
                 actions: [MessageBox.Action.CLOSE]
 
             });
-        }
+        },
+
+        getAllTableRowsOData: function () {
+            var oTable = this.byId("idOrderItemTable");
+            var oBinding = oTable.getBinding("rows");
+            var aContexts = oBinding.getContexts();
+
+            var aAllRows = [];
+            aContexts.forEach(function (oContext) {
+                aAllRows.push(oContext.getObject());
+            });
+
+            return aAllRows;
+        },
     });
 })
