@@ -111,8 +111,8 @@
                 items="{
                     path: '/Orders'
                 }"
-                mode="None"
-                itemPress=".onOrdersTableItemPress"
+                mode="Delete"
+                delete="onOrdersTableDelete"                
             >
                 <headerToolbar>
                     <Toolbar>
@@ -130,6 +130,7 @@
                         />
                     </Toolbar>
                 </headerToolbar>
+
                 <columns>
                     <Column
                         minScreenWidth="Tablet"

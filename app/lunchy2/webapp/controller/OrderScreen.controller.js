@@ -88,10 +88,6 @@ sap.ui.define([
         /* Table Event Handlers                                       */
         /* =========================================================== */
 
-        onOrdersTableItemPress: function (oEvent) {
-            console.log("Table item pressed", oEvent);
-        },
-
         onColumnListItemOrderPress: function (oEvent) {
             var oBindingContext = oEvent.getSource().getBindingContext();
             if (!oBindingContext) {
@@ -107,6 +103,26 @@ sap.ui.define([
             // Navigate to order details
             this.getRouter().navTo("RouteOrderItemScreen", {
                 OrderID: sOrderId
+            });
+        },
+
+        onOrdersTableDelete: function (oEvent) {
+            var oListItem = oEvent.getParameter("listItem");
+            var oContext = oListItem.getBindingContext();
+
+            // Step 4: Ask user to confirm
+            MessageBox.confirm(`Are you sure you want to delete this order?`, {
+                title: "Delete Order",
+                onClose: function (oAction) {
+                    if (oAction === MessageBox.Action.OK) {
+                        // Step 4: Delete using modern V4 method
+                        oContext.delete().then(function () {
+                            MessageToast.show("Order deleted successfully");
+                        }).catch(function () {
+                            MessageToast.show("Failed to delete order");
+                        });
+                    }
+                }
             });
         },
 
@@ -174,7 +190,7 @@ sap.ui.define([
 
             // RETURN the promise
             return oBinding.requestContexts().then((aContexts) => {
-                const sCount = String(aContexts.length).padStart(4, '0');
+                const sCount = String(aContexts.length + 1).padStart(4, '0');
                 return sCount;
             }).catch(function (oError) {
                 console.error("Error getting orders count:", oError);
@@ -187,9 +203,15 @@ sap.ui.define([
             this._oCreateOrderDialog.close();
         },
 
-        onSaveButtonPress: function () {
+        onSaveButtonPress: async function () {
             var oViewModel = this.getView().getModel("viewModel");
             var oFormData = oViewModel.getProperty("/formData");
+
+            // Check if buyer has payment methods registered?
+            if (!(await this.checkPaymentMethodsExist(oFormData.Buyer))) {
+                MessageBox.error("Selected buyer didn't have payment methods");
+                return;
+            }
 
             // Show busy indicator
             this._oCreateOrderDialog.setBusy(true);
@@ -277,6 +299,23 @@ sap.ui.define([
         /* =========================================================== */
         /* Private Methods                                             */
         /* =========================================================== */
+
+        // Most efficient - server only counts, doesn't send data
+        checkPaymentMethodsExist: function (sUserID) {
+            var oModel = this.getView().getModel();
+
+            // Use $count=true to get count without data
+            var oBinding = oModel.bindList("/PaymentMethods", null, null, [
+                new Filter("user_ID", FilterOperator.EQ, sUserID)
+            ], {
+                $count: true
+            });
+
+            return oBinding.requestContexts(0, 0).then(function (aContexts) {
+                console.log(aContexts);
+                return aContexts.length > 0;
+            });
+        },
 
         _applyFilters: function () {
             var oTable = this.byId("idOrdersTable");

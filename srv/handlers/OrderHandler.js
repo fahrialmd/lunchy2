@@ -43,16 +43,6 @@ module.exports = function () {
         }
     });
 
-    // Orders DELETE logic
-    this.before('DELETE', 'Orders', async (req) => {
-        // Check if order can be deleted
-        const orderId = req.params[0];
-        const order = await SELECT.one.from('Orders').where({ ID: orderId });
-
-        if (order && order.status_code === 'C') {
-            req.error(400, 'Cannot delete closed orders');
-        }
-    });
 
     this.after('CREATE', 'Orders', async (order, req) => {
         console.log('Order created successfully:', order.ID);

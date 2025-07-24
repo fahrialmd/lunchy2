@@ -79,6 +79,7 @@
                         ${status/code} === 'A' ? 'Information' : 
                         'None'
                     }"
+                    press="onNameGenericTagStatusPress"
                 />
             </VBox>
         </uxap:headerContent>
@@ -126,10 +127,12 @@
                     <uxap:ObjectPageSubSection title="Items Details">
                         <table:Table
                             id="idOrderItemTable"
-                            rows="{items}"
+                            rows="{
+                                path: 'items',
+                                templateShareable: true
+                            }"
                             selectionMode="Multi"
                             enableColumnReordering="false"
-                            rowMode="fixed"
                             alternateRowColors="true"
                             rowActionCount="1"
                         >
@@ -152,7 +155,6 @@
                                     highlight="{= ${status_code} === 'P' ? 'Success' : 'Warning'}"
                                 />
                             </table:rowSettingsTemplate>
-                            <!-- Fixed row actions -->
                             <table:rowActionTemplate>
                                 <table:RowAction>
                                     <table:items>
@@ -169,7 +171,10 @@
                                     <Label text="Customer Name" />
                                     <table:template>
                                         <ComboBox
-                                            items="{/Users}"
+                                            items="{
+                                                path: '/Users',
+                                                templateShareable: true
+                                            }"
                                             selectedKey="{user_ID}"
                                             placeholder="Search and select user..."
                                         >
@@ -243,7 +248,10 @@
                                     <table:template>
                                         <HBox alignItems="Center">
                                             <ComboBox
-                                                items="{/ItemStatuses}"
+                                                items="{
+                                                    path: '/ItemStatuses',
+                                                    templateShareable: true
+                                                }"
                                                 selectedKey="{status_code}"
                                                 placeholder="Select status..."
                                             >

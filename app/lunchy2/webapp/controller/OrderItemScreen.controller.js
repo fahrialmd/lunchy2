@@ -1,9 +1,11 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/m/MessageToast",
+    "sap/m/MessageBox"
 ], function (
     Controller,
-    MessageToast
+    MessageToast,
+    MessageBox
 ) {
     "use strict";
 
@@ -20,7 +22,9 @@ sap.ui.define([
             const sOrderPath = "/Orders(" + sOrderId + ")";
             this.getView().bindElement({
                 path: sOrderPath,
-                $expand: "items,items/itemStatus,status,user"
+                $expand: "items,items/itemStatus,status,user",
+                $$updateGroupId: "$auto",
+                $$groupId: "$auto"
             });
         },
 
@@ -63,8 +67,54 @@ sap.ui.define([
             });
         },
 
-        onRowActionItemDeletePress: function () {
+        onRowActionItemDeletePress: function (oEvent) {
+            // Step 1: Get the row that was clicked
+            var oButton = oEvent.getSource();
+            var oRow = oButton.getParent().getParent(); // Get the table row
+            var oContext = oRow.getBindingContext();
 
+            // Step 2: Check if we have valid data
+            if (!oContext) {
+                MessageToast.show("No item found to delete");
+                return;
+            }
+
+            // Step 3: Get item info for confirmation
+            var oData = oContext.getObject();
+            var sItemName = oData.ID || "this item";
+
+            // Step 4: Ask user to confirm
+            MessageBox.confirm(`Are you sure you want to delete "${sItemName}"?`, {
+                title: "Delete Item",
+                onClose: function (oAction) {
+                    if (oAction === MessageBox.Action.OK) {
+                        // Step 4: Delete using modern V4 method
+                        oContext.delete().then(function () {
+                            MessageToast.show("Item deleted successfully");
+                        }).catch(function () {
+                            MessageToast.show("Failed to delete item");
+                        });
+                    }
+                }
+            });
+        },
+        onNameGenericTagStatusPress: function () {
+            var oContext = this.getView().getBindingContext();
+
+            if (!oContext) {
+                MessageToast.show("No order context available");
+                return;
+            }
+
+            var sCurrentStatus = oContext.getProperty("status_code");
+
+            // Create selection dialog
+            MessageBox.show("Select new order status:", {
+                icon: MessageBox.Icon.QUESTION,
+                title: "Change Order Status",
+                actions: [MessageBox.Action.CLOSE]
+
+            });
         }
     });
-});
+})
