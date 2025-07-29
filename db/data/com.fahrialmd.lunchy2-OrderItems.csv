@@ -1,4 +1,4 @@
-ID,order_ID,user_ID,menu,quantity,price,deliveryFee,discount,overlimit,total,status_code,currency_code,createdAt,createdBy,modifiedAt,modifiedBy
+ID,order_ID,user_ID,menu,quantity,price,itemDeliveryFee,itemDiscount,itemExtra,total,status_code,currency_code,createdAt,createdBy,modifiedAt,modifiedBy
 30df4819-9831-4960-b589-7833fc699a0f,24512401-a7fb-47ba-ace7-6dd362163b57,10f01a56-21b1-4201-b50c-8f1a5e5cc2c5,buldak,1,"20000","3250",7000,1095.24,17345 ,P,IDR,,,,
 9a497f92-a867-4ca1-a015-2ef4d7de589a,24512401-a7fb-47ba-ace7-6dd362163b57,ba5ea52f-acd8-4f18-bc08-103a3955e921,crispy chicken,1,"17000","3251",5950,930.95 ,15231 ,U,IDR,,,,
 7af5d655-7e73-432a-830b-829a72002a34,24512401-a7fb-47ba-ace7-6dd362163b57,6bb26f7b-3985-42c6-b239-5859a1972de5,crispy chicken,1,"17000","3252",5950,931.95 ,15231 ,P,IDR,,,,

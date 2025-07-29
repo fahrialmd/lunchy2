@@ -123,6 +123,15 @@
                             value="{viewModel>/formData/DiscountLimit}"
                             required="true"
                         />
+                        <!-- Discount Limit -->
+                        <Label text="Additional Discount" />
+                        <Input
+                            id="idAdditionalDiscountInput"
+                            placeholder="0"
+                            type="Number"
+                            value="{viewModel>/formData/AdditionalDiscount}"
+                            required="true"
+                        />
                     </f:content>
                 </f:SimpleForm>
             </VBox>

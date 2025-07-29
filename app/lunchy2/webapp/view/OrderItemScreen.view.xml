@@ -39,59 +39,122 @@
             </uxap:ObjectPageHeader>
         </uxap:headerTitle>
         <uxap:headerContent>
-            <VBox>
-                <Text
-                    text="Delivery Fee"
-                    class=""
-                />
-                <ObjectNumber
-                    number="{deliveryFee}"
-                    unit="{currency_code}"
-                />
-            </VBox>
-            <VBox>
-                <Text
-                    text="Discount"
-                    class=""
-                />
-                <ObjectNumber
-                    number="{discountPercent}"
-                    unit="%"
-                />
-            </VBox>
-            <VBox>
-                <Text text="Discount Limit" />
-                <ObjectNumber
-                    number="{discountLimit}"
-                    unit="{currency_code}"
+            <VBox alignItems="Center">
+                <Avatar
+                    src=""
+                    displaySize="XL"
+                    showBorder="true"
                 />
             </VBox>
             <VBox alignItems="Center">
-                <Text text="Buyer" />
-                <Text text="{user/userName}" />
-            </VBox>
-            <VBox class="sapUiTinyMarginTop ">
-                <GenericTag
+                <ObjectStatus
+                    title="Buyer"
+                    text="{user/userName}"
+                />
+                <ObjectStatus
+                    title="Payment"
+                    text="{
+                    path: 'user/paymentMethods',
+                    targetType: 'any',
+                    formatter: '.formatPrimaryPaymentName'
+                }"
+                    visible="{
+                    path: 'user/paymentMethods',
+                    targetType: 'any',
+                    formatter: '.hasPaymentMethods'
+                }"
+                />
+
+                <ObjectStatus
+                    title="Account No"
+                    text="{
+                    path: 'user/paymentMethods',
+                    targetType: 'any',
+                    formatter: '.formatPrimaryAccountNumber'
+                }"
+                    visible="{
+                    path: 'user/paymentMethods',
+                    targetType: 'any',
+                    formatter: '.hasPaymentMethods'
+                }"
+                />
+                <ObjectStatus
+                    class="sapUiTinyMarginTop sapMObjectStatusLarge"
                     text="{status/name}"
-                    status="{= 
+                    icon="{= 
+                        ${status/code} === 'O' ? 'sap-icon://activity-2' : 
+                        ${status/code} === 'C' ? 'sap-icon://sys-enter-2' : 
+                        ${status/code} === 'A' ? 'sap-icon://sys-cancel-2' : 
+                        'None'
+                    }"
+                    inverted="true"
+                    state="{= 
                         ${status/code} === 'O' ? 'Warning' : 
                         ${status/code} === 'C' ? 'Success' : 
                         ${status/code} === 'A' ? 'Information' : 
                         'None'
                     }"
-                    press="onNameGenericTagStatusPress"
                 />
             </VBox>
         </uxap:headerContent>
         <uxap:sections>
             <uxap:ObjectPageSection
-                title="Order Details"
+                title="Order"
                 titleUppercase="false"
-                class="noTopMargin"
             >
                 <uxap:subSections>
-                    <uxap:ObjectPageSubSection title="Items Subtotals">
+                    <uxap:ObjectPageSubSection>
                         <HBox class="sapUiSmallMargin customGapHBox">
+                            <VBox alignItems="Center">
+                                <Text
+                                    text="Delivery Fee"
+                                    class="sapUiTinyMarginBottom"
+                                />
+                                <ObjectNumber
+                                    number="{deliveryFee}"
+                                    unit="{currency_code}"
+                                />
+                            </VBox>
+                            <VBox alignItems="Center">
+                                <Text
+                                    text="Discount"
+                                    class="sapUiTinyMarginBottom"
+                                />
+                                <ObjectNumber
+                                    number="{discountPercent}"
+                                    unit="%"
+                                />
+                            </VBox>
+                            <VBox alignItems="Center">
+                                <Text
+                                    text="Discount Limit"
+                                    class="sapUiTinyMarginBottom"
+                                />
+                                <ObjectNumber
+                                    number="{discountLimit}"
+                                    unit="{currency_code}"
+                                />
+                            </VBox>
+                            <VBox alignItems="Center">
+                                <Text
+                                    text="Additional Discount"
+                                    class="sapUiTinyMarginBottom"
+                                />
+                                <ObjectNumber
+                                    number="{additionalDiscount}"
+                                    unit="{currency_code}"
+                                />
+                            </VBox>
+                            <VBox alignItems="Center">
+                                <Text
+                                    text="Extra"
+                                    class="sapUiTinyMarginBottom"
+                                />
+                                <ObjectNumber
+                                    number="{extra}"
+                                    unit="{currency_code}"
+                                />
+                            </VBox>
                             <VBox alignItems="Center">
                                 <Text
                                     text="Total Price"
@@ -99,16 +162,6 @@
                                 />
                                 <ObjectNumber
                                     number="{totalAmountRaw}"
-                                    unit="{currency_code}"
-                                />
-                            </VBox>
-                            <VBox alignItems="Center">
-                                <Text
-                                    text="Overlimit Disc."
-                                    class="sapUiTinyMarginBottom"
-                                />
-                                <ObjectNumber
-                                    number="{discountLimitCalculated}"
                                     unit="{currency_code}"
                                 />
                             </VBox>
@@ -124,7 +177,14 @@
                             </VBox>
                         </HBox>
                     </uxap:ObjectPageSubSection>
-                    <uxap:ObjectPageSubSection title="Items Details">
+                </uxap:subSections>
+            </uxap:ObjectPageSection>
+            <uxap:ObjectPageSection
+                title="Items"
+                titleUppercase="false"
+            >
+                <uxap:subSections>
+                    <uxap:ObjectPageSubSection>
                         <table:Table
                             id="idOrderItemTable"
                             rows="{
@@ -147,6 +207,11 @@
                                         id="idAddItemButton"
                                         icon="sap-icon://add"
                                         press=".onButtonAddItemPress"
+                                    />
+                                    <Button
+                                        id="idRefreshButton"
+                                        icon="sap-icon://refresh"
+                                        press=".onButtonRefreshPress"
                                     />
                                 </OverflowToolbar>
                             </table:extension>
@@ -197,7 +262,10 @@
                                 <table:Column>
                                     <Label text="Quantity" />
                                     <table:template>
-                                        <Input value="{quantity}" />
+                                        <Input
+                                            value="{quantity}"
+                                            change="onQuantityInputChange"
+                                        />
                                     </table:template>
                                 </table:Column>
 
@@ -208,6 +276,7 @@
                                             <Input
                                                 value="{price}"
                                                 placeholder="0"
+                                                change="onPriceInputChange"
                                             />
                                         </HBox>
                                     </table:template>
@@ -217,17 +286,27 @@
                                     <Label text="Delivery Fee" />
                                     <table:template>
                                         <ObjectNumber
-                                            number="{deliveryFee}"
+                                            number="{itemDeliveryFee}"
                                             unit="{currency_code}"
                                         />
                                     </table:template>
                                 </table:Column>
 
                                 <table:Column>
-                                    <Label text="Item Overlimit Disc." />
+                                    <Label text="Item Discount" />
                                     <table:template>
                                         <ObjectNumber
-                                            number="{overlimit}"
+                                            number="{itemDiscount}"
+                                            unit="{currency_code}"
+                                        />
+                                    </table:template>
+                                </table:Column>
+
+                                <table:Column>
+                                    <Label text="Item Extra" />
+                                    <table:template>
+                                        <ObjectNumber
+                                            number="{itemExtra}"
                                             unit="{currency_code}"
                                         />
                                     </table:template>

@@ -3,13 +3,11 @@ sap.ui.define([
     "sap/m/MessageToast",
     "sap/m/MessageBox",
     "lunchy2/utils/QueryHelper",
-    "lunchy2/utils/CalculateFieldsHelper"
 ], function (
     Controller,
     MessageToast,
     MessageBox,
     QueryHelper,
-    CalculateFieldsHelper
 ) {
     "use strict";
 
@@ -18,6 +16,7 @@ sap.ui.define([
             const oRouter = this.getOwnerComponent().getRouter();
             oRouter.getRoute("RouteOrderItemScreen").attachPatternMatched(this._onRouteMatched, this);
             this._oModel = this.getView().getModel();
+            this._refreshOrderComputedFields();
         },
 
         _onRouteMatched: function (oEvent) {
@@ -26,7 +25,7 @@ sap.ui.define([
             const sOrderPath = "/Orders(" + this._sOrderId + ")";
             this.getView().bindElement({
                 path: sOrderPath,
-                $expand: "items,items/itemStatus,status,user",
+                $expand: "items,items/itemStatus,status,user,user/paymentMethods",
                 $$updateGroupId: "$auto",
                 $$groupId: "$auto"
             });
@@ -50,11 +49,6 @@ sap.ui.define([
                 currency_code: "IDR"          // Default currency
             };
 
-            // Calculate Fields
-            this._calculateFields();
-
-            console.log("Woyyyyyyyyyy");
-
 
             // Get binding directly from the table
             var oTable = this.byId("idOrderItemTable");
@@ -68,47 +62,26 @@ sap.ui.define([
             // Create new item using the table's binding
             var oContext = oItemsBinding.create(oNewItem);
 
-            oContext.created().then(function () {
+            oContext.created().then(() => {
                 MessageToast.show("New item added successfully!");
+                this._refreshOrderComputedFields();
 
-            }.bind(this)).catch(function (oError) {
+            }).catch((oError) => {
                 console.error("Error creating item:", oError);
                 MessageToast.show("Failed to add new item. Please try again.");
             });
         },
 
-        _calculateFields: async function () {
-            const oModel = this.getView().getModel();
-            const aOrderItems = await this._getOrderItems(oModel);
-            const oOrder = await this._getOrder(oModel);
-            
-            aOrderItems = CalculateFieldsHelper.calculateDeliveryFee(oOrder.deliveryFee, aOrderItems)
-
-
-
+        onPriceInputChange: function () {
+            this._refreshOrderComputedFields();
         },
 
-        _getOrderItems: function (oModel) {
-            return QueryHelper.getByFilters(oModel, "OrderItems", { order_ID: this._sOrderId }, {})
-                .then(function (aContexts) {
-                    console.log("All order items:", aContexts);
-                    return aContexts
-                })
-                .catch(function (oError) {
-                    console.error("Error loading items:", oError);
-                    throw oError
-                });
+        onQuantityInputChange: function () {
+            this._refreshOrderComputedFields();
         },
 
-        _getOrder: function (oModel) {
-            return QueryHelper.getById(oModel, "Orders", this._sOrderId, {})
-                .then((oContext) => {
-                    return oContext;
-                })
-                .catch(function (oError) {
-                    console.error("Error loading order:", oError);
-                    throw oError
-                })
+        onButtonRefreshPress: function () {
+            this._refreshOrderComputedFields();
         },
 
         onRowActionItemDeletePress: function (oEvent) {
@@ -130,13 +103,15 @@ sap.ui.define([
             // Step 4: Ask user to confirm
             MessageBox.confirm(`Are you sure you want to delete "${sItemName}"?`, {
                 title: "Delete Item",
-                onClose: function (oAction) {
+                onClose: (oAction) => {
                     if (oAction === MessageBox.Action.OK) {
-                        // Step 4: Delete using modern V4 method
-                        oContext.delete().then(function () {
+                        // Delete using modern V4 method
+                        oContext.delete().then(() => {
                             MessageToast.show("Item deleted successfully");
-                        }).catch(function () {
+                            this._refreshOrderComputedFields(); // ← Now 'this' works!
+                        }).catch((oError) => {
                             MessageToast.show("Failed to delete item");
+                            console.error(oError);
                         });
                     }
                 }
@@ -161,17 +136,49 @@ sap.ui.define([
             });
         },
 
-        getAllTableRowsOData: function () {
-            var oTable = this.byId("idOrderItemTable");
-            var oBinding = oTable.getBinding("rows");
-            var aContexts = oBinding.getContexts();
+        formatPrimaryPaymentName: function (aPaymentMethods) {
+            if (!aPaymentMethods || !Array.isArray(aPaymentMethods) || aPaymentMethods.length === 0) {
+                return "No payment method";
+            }
 
-            var aAllRows = [];
-            aContexts.forEach(function (oContext) {
-                aAllRows.push(oContext.getObject());
-            });
+            const oPrimary = aPaymentMethods.find(pm => pm.isPrimary);
+            const oPayment = oPrimary || aPaymentMethods[0];
 
-            return aAllRows;
+            return oPayment ? oPayment.paymentName : "Not available";
+        },
+
+        formatPrimaryAccountNumber: function (aPaymentMethods) {
+            if (!aPaymentMethods || !Array.isArray(aPaymentMethods) || aPaymentMethods.length === 0) {
+                return "No account number";
+            }
+
+            const oPrimary = aPaymentMethods.find(pm => pm.isPrimary);
+            const oPayment = oPrimary || aPaymentMethods[0];
+
+            return oPayment ? oPayment.accountNumber : "Not available";
+        },
+
+        hasPaymentMethods: function (aPaymentMethods) {
+            return aPaymentMethods && Array.isArray(aPaymentMethods) && aPaymentMethods.length > 0;
+        },
+
+        hasNoPaymentMethods: function (aPaymentMethods) {
+            return !aPaymentMethods || !Array.isArray(aPaymentMethods) || aPaymentMethods.length === 0;
+        },
+
+        /* =========================================================== */
+        /* Private Methods                                             */
+        /* =========================================================== */
+
+        _refreshOrderComputedFields: function () {
+            const oModel = this.getView().getModel();
+            const oBindingContext = this.getView().getBindingContext();
+
+            if (!oBindingContext) return;
+
+            oModel.submitBatch("$auto").then(() => {
+                return oBindingContext.refresh();
+            }).catch(console.error);
         },
     });
 })

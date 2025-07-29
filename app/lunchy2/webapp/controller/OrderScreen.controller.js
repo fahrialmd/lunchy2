@@ -30,7 +30,8 @@ sap.ui.define([
                     OrderTime: null,
                     DeliveryFee: 0,
                     Discount: 0,
-                    DiscountLimit: 0
+                    DiscountLimit: 0,
+                    AdditionalDiscount: 0,
                 }
             });
             this.getView().setModel(oViewModel, "viewModel");
@@ -226,6 +227,7 @@ sap.ui.define([
                 deliveryFee: parseFloat(oFormData.DeliveryFee) || 0,
                 discountPercent: parseFloat(oFormData.Discount) || 0,
                 discountLimit: parseFloat(oFormData.DiscountLimit) || 0,
+                additionalDiscount: parseFloat(oFormData.AdditionalDiscount || 0),
                 status_code: "O"
             };
 
@@ -292,7 +294,8 @@ sap.ui.define([
                 OrderTime: null,
                 DeliveryFee: 0,
                 Discount: 0,
-                DiscountLimit: 0
+                DiscountLimit: 0,
+                AdditionalDiscount: 0
             });
         },
 

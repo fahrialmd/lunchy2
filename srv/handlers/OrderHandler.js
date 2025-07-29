@@ -1,6 +1,15 @@
 const cds = require('@sap/cds');
+const FieldCalculationService = require('../services/FieldCalculationService');
 
 module.exports = function () {
+    // Initialize the calculation service
+    let calculationService;
+
+    // Initialize service after entities are available
+    this.on('served', () => {
+        calculationService = new FieldCalculationService(this.entities);
+    });
+
     // Orders CREATE logic
     this.before('CREATE', 'Orders', async (req) => {
         const { data } = req;
@@ -32,43 +41,29 @@ module.exports = function () {
     });
 
     // Orders READ logic (for calculated fields)
-    this.after('READ', 'Orders', async (orders, req) => {
+    this.after(['READ'], 'Orders', async (orders, req) => {
         if (!Array.isArray(orders)) orders = [orders];
 
+        // Ensure calculation service is available
+        if (!calculationService) {
+            calculationService = new FieldCalculationService(this.entities);
+        }
+
         for (const order of orders) {
-            if (order.items) {
-                // Calculate total amounts
-                await this._calculateOrderTotals(order);
-            }
+            // Use the calculation service
+            await calculationService.calculateAllComputedFields(order);
         }
     });
-
 
     this.after('CREATE', 'Orders', async (order, req) => {
         console.log('Order created successfully:', order.ID);
     });
 
-    // Helper method for calculating totals
-    this._calculateOrderTotals = async function (order) {
-        if (!order.items || order.items.length === 0) return;
-
-        let totalRaw = 0;
-
-        // Calculate raw total from items
-        for (const item of order.items) {
-            totalRaw += (item.price || 0) * (item.quantity || 1);
+    // Expose calculation service methods for potential use by other handlers
+    this.getCalculationService = function () {
+        if (!calculationService) {
+            calculationService = new FieldCalculationService(this.entities);
         }
-
-        // Apply delivery fee
-        totalRaw += order.deliveryFee || 0;
-
-        // Calculate discount
-        const discountAmount = Math.min(
-            totalRaw * (order.discountPercent || 0) / 100,
-            order.discountLimit || 0
-        );
-
-        order.totalAmountRaw = totalRaw;
-        order.totalAmount = totalRaw - discountAmount;
+        return calculationService;
     };
 };
