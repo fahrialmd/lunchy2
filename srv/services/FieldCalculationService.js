@@ -46,8 +46,9 @@ class FieldCalculationService {
             // Set delivery fee
             item.itemDeliveryFee = deliveryFeePerItem;
 
-            // Calculate discount
+            // Calculate discount (always negative)
             item.itemDiscount = this.calculateItemDiscount(order.discountPercent || 0, item.price || 0);
+
 
             const itemRawAmount = (item.price || 0);
             totalAmountRaw += itemRawAmount;
@@ -58,11 +59,12 @@ class FieldCalculationService {
         const extra = (totalDiscount > (order.discountLimit || 0)) ?
             (totalDiscount - (order.discountLimit || 0)) : order.additionalDiscount;
 
+
         // STEP 4 & 5: Calculate item extras and final totals (per item calculation needed)
         let totalAmount = 0;
 
         for (const item of items) {
-            // Calculate item extra using proportional formula
+            // Calculate item extra using proportional formula (always negative)
             item.itemExtra = this.calculateItemExtra(extra, item.price || 0, totalAmountRaw, itemCount);
 
             // Calculate final item total
@@ -98,22 +100,22 @@ class FieldCalculationService {
     }
 
     /**
-     * Calculate item discount
+     * Calculate item discount (always returns negative value for easy summing)
      * @param {number} discountPercent - Discount percentage from order
      * @param {number} itemPrice - Item price
-     * @returns {number} Item discount amount
+     * @returns {number} Item discount amount (negative)
      */
     calculateItemDiscount(discountPercent, itemPrice) {
-        return itemPrice * discountPercent / 100;
+        return (itemPrice * discountPercent / 100) * -1;
     }
 
     /**
-     * Calculate item extra (proportional to item price)
-     * @param {number} extra - Total extra from order
+     * Calculate item extra (returns same sign as input extra)
+     * @param {number} extra - Total extra from order (already negative)
      * @param {number} itemPrice - Item price
      * @param {number} totalAmountRaw - Total raw amount of all items
      * @param {number} itemCount - Number of items in order
-     * @returns {number} Item extra amount
+     * @returns {number} Item extra amount (same sign as input extra)
      */
     calculateItemExtra(extra, itemPrice, totalAmountRaw, itemCount) {
         if (extra <= 0 || extra == null || totalAmountRaw === 0) {
@@ -123,9 +125,11 @@ class FieldCalculationService {
                 case 0:
                     return 0;
                 case 1:
-                    return extra;
+                    // Return the full extra amount (preserves sign)
+                    return extra * -1;
                 default:
-                    return (itemPrice / totalAmountRaw) * extra;
+                    // Proportional distribution (preserves sign)
+                    return (itemPrice / totalAmountRaw) * extra * -1;
             }
         }
     }
@@ -137,7 +141,7 @@ class FieldCalculationService {
      */
     calculateItemTotal(item) {
         return (item.price || 0) +
-            (item.itemDeliveryFee || 0) -
+            (item.itemDeliveryFee || 0) +
             (item.itemDiscount || 0) +
             (item.itemExtra || 0);
     }
@@ -165,27 +169,6 @@ class FieldCalculationService {
         };
     }
 
-    /**
-     * Calculate all item computed fields for a single item
-     * @param {Object} item - Order item
-     * @param {Object} order - Parent order
-     * @param {Array} allItems - All items in the order (for proportional calculations)
-     * @returns {Object} Updated item with computed fields
-     */
-    calculateSingleItemFields(item, order, allItems) {
-        const itemCount = allItems.length;
-        const totalAmountRaw = allItems.reduce((sum, itm) => sum + (itm.price || 0), 0);
-        const totalDiscount = allItems.reduce((sum, itm) => sum + (this.calculateItemDiscount(order.discountPercent || 0, itm.price || 0)), 0);
-        const extra = (totalDiscount > (order.discountLimit || 0)) ? (totalDiscount - (order.discountLimit || 0)) : 0;
-
-        // Calculate computed fields
-        item.itemDeliveryFee = this.calculateDeliveryFee(order.deliveryFee || 0, itemCount);
-        item.itemDiscount = this.calculateItemDiscount(order.discountPercent || 0, item.price || 0);
-        item.itemExtra = this.calculateItemExtra(extra, item.price || 0, totalAmountRaw, itemCount);
-        item.total = this.calculateItemTotal(item);
-
-        return item;
-    }
 }
 
 module.exports = FieldCalculationService;
